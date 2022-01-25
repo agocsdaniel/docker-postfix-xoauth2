@@ -1,4 +1,4 @@
-# dev-mta-postfix
+# docker-postfix-xoauth2
 
 A simple MTA for development using Postfix
 
@@ -8,7 +8,7 @@ A simple MTA for development using Postfix
 
   Any mails to arbitrary senders can be directed to a single e-mail address
 
-* Gmail XOAUTH2 support
+* XOAUTH2 support
 
   Thanks to [cyrus-sasl-xoauth2](https://github.com/moriyoshi/cyrus-sasl-xoauth2), SASL XOAuth2 authentication is supported out of the box.
 
@@ -21,7 +21,7 @@ docker run \
   -e POSTFIX_RELAY_TLS=may \
   -e POSTFIX_RELAY_AUTH_USER=someone@example.com \
   -e POSTFIX_RELAY_AUTH_PASSWORD=credential-such-as-XOAUTH2-token \
-  moriyoshi/dev-mta-postfix
+  danca/docker-postfix-xoauth2
 ```
 
 ## Environment variables
@@ -103,8 +103,8 @@ docker run \
   -e OAUTH2_SCOPE=https://mail.google.com/ \
   -e OAUTH2_CLIENT_ID=***** \
   -e OAUTH2_CLIENT_SECRET=***** \
-  -v SOME-DIRECTORY:/dev-mta-postfix/state \
-  moriyoshi/dev-mta-postfix auth
+  -v SOME-DIRECTORY:/scripts/state \
+  danca/docker-postfix-xoauth2 auth
 ```
 
 Get the authorization code by navigating your browser to the URL and put the code to the `[oauth2-state]` in `SOME-DIRECTORY/state.ini` that should have been created by the above.
@@ -128,8 +128,8 @@ docker run \
   -e POSTFIX_RELAY_AUTH_USER=someone@example.com \
   -e POSTFIX_RELAY_SASL_MECHANISMS=xoauth2
   -e OAUTH2_TOKEN_AUTO_REFRESH=1 \
-  -v SOME-DIRECTORY:/dev-mta-postfix/state \
-  moriyoshi/dev-mta-postfix
+  -v SOME-DIRECTORY:/scripts/state \
+  danca/docker-postfix-xoauth2
 ```
 
 ## Environment values for Microsoft O365
