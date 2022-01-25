@@ -126,10 +126,18 @@ docker run \
   -e POSTFIX_RELAY_HOST='[smtp.gmail.com]:587' \
   -e POSTFIX_RELAY_TLS=may \
   -e POSTFIX_RELAY_AUTH_USER=someone@example.com \
+  -e POSTFIX_RELAY_SASL_MECHANISMS=xoauth2
   -e OAUTH2_TOKEN_AUTO_REFRESH=1 \
   -v SOME-DIRECTORY:/dev-mta-postfix/state \
   moriyoshi/dev-mta-postfix
 ```
+
+## Environment values for Microsoft O365
+
+OAUTH2_AUTH_ENDPOINT=https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize
+OAUTH2_TOKEN_ENDPOINT=https://login.microsoftonline.com/organizations/oauth2/v2.0/token
+OAUTH2_REDIRECT_URI=https://login.microsoftonline.com/common/oauth2/nativeclient
+OAUTH2_SCOPE="offline_access https://outlook.office.com/SMTP.Send"
 
 ## License
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import re
 import os
@@ -8,13 +8,15 @@ import jinja2
 def get_postconf(args):
     s = subprocess.Popen(args, stdout=subprocess.PIPE)
     try:
-        retval = dict((k.strip(), v.strip()) for k, _, v in (l.partition('=') for l in s.stdout))
+        retval = dict((k.strip(), v.strip()) for k, _, v in (l.partition(b'=') for l in s.stdout))
     finally:
         s.stdout.close()
         s.wait()
     return retval
 
 def split_by_commas(v):
+    if not v:
+        return []
     v = v.strip()
     if not v:
         return []
@@ -40,7 +42,7 @@ templates = [
     ('templates/sender_dependent_relayhosts.j2', '/etc/postfix/sender_dependent_relayhosts', None, lambda vars: vars.get('postfix_relay_host_by_sender')),
     ('templates/virtual.j2', '/etc/postfix/virtual', POSTMAP, lambda vars: vars.get('catchall_email_address')),
     ('templates/aliases.j2', '/etc/aliases', POSTALIAS, lambda vars: vars.get('postfix_aliases')),
-    ]
+]
 
 postconf = get_postconf([POSTCONF, '-d'])
 destdir = os.environ.get('DESTDIR', '')
@@ -50,7 +52,7 @@ vars = {}
 catchall_email_address = os.environ.get('CATCHALL_EMAIL_ADDRESS')
 postfix_relay_host = os.environ.get('POSTFIX_RELAY_HOST')
 postfix_relay_tls = os.environ.get('POSTFIX_RELAY_TLS')
-postfix_authorized_networks = split_by_commas(postconf['mynetworks']) + split_by_commas(os.environ.get('POSTFIX_AUTHORIZED_NETWORKS', ''))
+postfix_authorized_networks = split_by_commas(postconf.get('mynetworks')) + split_by_commas(os.environ.get('POSTFIX_AUTHORIZED_NETWORKS', ''))
 postfix_relay_auth_user = os.environ.get('POSTFIX_RELAY_AUTH_USER')
 postfix_relay_auth_password = os.environ.get('POSTFIX_RELAY_AUTH_PASSWORD', '')
 postfix_relay_host_by_sender = split_into_pairs(os.environ.get('POSTFIX_RELAY_HOST_BY_SENDER', ''))

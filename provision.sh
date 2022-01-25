@@ -1,2 +1,2 @@
 #!/bin/sh
-cd /dev-mta-postfix/provision && python provision.py
+cd /scripts/provision && python3 provision.py

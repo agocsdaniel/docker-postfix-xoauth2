@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from __future__ import print_function
 import sys
 from six.moves.urllib.request import urlopen
 from six.moves.urllib.parse import urlencode, urljoin
-from six.moves.configparser import SafeConfigParser, NoOptionError
+from six.moves.configparser import ConfigParser, NoOptionError
 import json
 
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
@@ -16,7 +16,7 @@ class ApplicationError(Exception):
     pass
 
 def load(f):
-    p = SafeConfigParser()
+    p = ConfigParser()
     p.read(f)
     if not p.has_section('oauth2'):
         p.add_section('oauth2')
@@ -33,7 +33,7 @@ def save(p, f):
 
 def fetch(url, params=None):
     print("sending request to %s..." % url, file=sys.stderr)
-    u = urlopen(url, data=params and urlencode(params))
+    u = urlopen(url, data=params and urlencode(params).encode('ascii'))
     try:
         return json.load(u)
     finally:
@@ -49,6 +49,7 @@ def do(state_file, subcommand=None):
     state = load(state_file)
     oauth2_client_id = get_value(state, 'oauth2', 'client_id')
     oauth2_client_secret = get_value(state, 'oauth2', 'client_secret')
+    oauth2_redirect_uri = get_value(state, 'oauth2', 'redirect_uri')
 
     if not oauth2_client_id or not oauth2_client_secret:
         raise ApplicationError("both client_id and client_secret must be specified")
@@ -60,7 +61,7 @@ def do(state_file, subcommand=None):
             'client_id': oauth2_client_id,
             'scope': scope,
             'response_type': 'code',
-            'redirect_uri': REDIRECT_URI,
+            'redirect_uri': oauth2_redirect_uri,
             }
         print(urljoin(auth_endpoint, '?' + urlencode(params)))
     elif subcommand == 'token':
@@ -72,10 +73,10 @@ def do(state_file, subcommand=None):
         token_endpoint = get_value(state, 'oauth2', 'token_endpoint') or DEFAULT_TOKEN_ENDPOINT
         authorization_code = get_value(state, 'oauth2-state', 'authorization_code')
         refresh_token = get_value(state, 'oauth2-state', 'refresh_token')
-        params = {'client_id': oauth2_client_id, 'client_secret': oauth2_client_secret}
+        params = {'client_id': oauth2_client_id} #, 'client_secret': oauth2_client_secret}
         if authorization_code is not None:
             params['code'] = authorization_code
-            params['redirect_uri'] = REDIRECT_URI
+            params['redirect_uri'] = oauth2_redirect_uri
             params['grant_type']= 'authorization_code'
             authorization_code = None
             state.remove_option('oauth2-state', 'authorization_code')

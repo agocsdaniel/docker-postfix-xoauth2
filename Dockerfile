@@ -1,15 +1,22 @@
-FROM alpine:3.4
-RUN apk update && apk add ca-certificates python postfix py-pip cyrus-sasl-dev libc-dev gcc make autoconf automake libtool
-ADD https://github.com/moriyoshi/cyrus-sasl-xoauth2/archive/v0.1.tar.gz /tmp/
+FROM alpine:3.15
 WORKDIR /tmp
-RUN tar xf v0.1.tar.gz && cd cyrus-sasl-xoauth2-0.1 && ./autogen.sh && ./configure --with-cyrus-sasl=/usr && make install
-RUN apk del cyrus-sasl-dev libc-dev gcc make autoconf automake libtool
-RUN rm -rf cyrus-sasl-xoauth2-0.1 v0.1.tar.gz 
+
+ADD https://github.com/moriyoshi/cyrus-sasl-xoauth2/archive/v0.2.tar.gz /tmp/
+RUN apk update && \
+    apk add ca-certificates python3 postfix py3-pip cyrus-sasl-dev libc-dev gcc make autoconf automake libtool tini && \
+    tar xf v0.2.tar.gz && \
+    cd cyrus-sasl-xoauth2-0.2 && \
+    ./autogen.sh && \
+    ./configure --with-cyrus-sasl=/usr && \
+    make install && \
+    apk del cyrus-sasl-dev libc-dev gcc make autoconf automake libtool && \
+    rm -rf cyrus-sasl-xoauth2-0.2 v0.2.tar.gz && \
+	pip3 install jinja2 && \
+	mkdir -p /scripts/state
+	
 WORKDIR /
-RUN pip install jinja2 six
-RUN mkdir -p /dev-mta-postfix/state
-COPY ./provision /dev-mta-postfix/provision
-COPY ./watchdog.py ./oauth2.py ./entrypoint.sh ./keepalive.sh ./provision.sh /dev-mta-postfix/
-VOLUME ["/var/spool/postfix", "/dev-mta-postfix/state"]
-ENTRYPOINT ["/dev-mta-postfix/entrypoint.sh"]
+COPY ./provision /scripts/provision
+COPY ./oauth2.py ./entrypoint.sh ./keepalive.sh ./provision.sh /scripts/
+VOLUME ["/var/spool/postfix", "/scripts/state"]
+ENTRYPOINT ["/sbin/tini", "--", "/scripts/entrypoint.sh"]
 CMD [""]
