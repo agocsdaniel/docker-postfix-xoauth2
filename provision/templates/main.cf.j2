@@ -5,8 +5,8 @@ inet_protocols = all
 mydestination = $myhostname, localhost.$mydomain, localhost
 unknown_local_recipient_reject_code = 550
 mynetworks = {{ postfix_authorized_networks|join(', ') }}
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
+alias_maps = lmdb:/etc/aliases
+alias_database = lmdb:/etc/aliases
 disable_vrfy_command = yes
 allow_min_user = yes
 header_checks = regexp:/etc/postfix/header_checks
@@ -20,7 +20,7 @@ virtual_alias_maps = regexp:/etc/postfix/virtual
 {% if postfix_relay_host is defined %}
 relayhost = {{ postfix_relay_host }}
 #relay_domains = $mydestination
-#relay_recipient_maps = hash:/etc/postfix/relay_recipients
+#relay_recipient_maps = lmdb:/etc/postfix/relay_recipients
 smtp_tls_security_level = {{ postfix_relay_tls|default('may') }}
 {% if postfix_relay_auth_user|default(False) %}
 smtp_sasl_auth_enable = yes
@@ -28,6 +28,6 @@ smtp_sasl_auth_enable = yes
 smtp_sasl_mechanism_filter = {{ postfix_relay_sasl_mechanisms|join(',') }}
 {% endif %}
 smtp_sasl_security_options = noanonymous
-smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_password_maps = lmdb:/etc/postfix/sasl_passwd
 {% endif %}
 {% endif %}
