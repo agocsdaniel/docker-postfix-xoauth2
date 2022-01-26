@@ -134,6 +134,7 @@ docker run \
 
 ## Environment values for Microsoft O365
 
+POSTFIX_RELAY_HOST=[smtp.office365.com]:587
 OAUTH2_AUTH_ENDPOINT=https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize
 OAUTH2_TOKEN_ENDPOINT=https://login.microsoftonline.com/organizations/oauth2/v2.0/token
 OAUTH2_REDIRECT_URI=https://login.microsoftonline.com/common/oauth2/nativeclient
